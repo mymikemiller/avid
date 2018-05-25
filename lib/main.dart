@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'video_container.dart';
 
 void main() => runApp(new MyApp());
 
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Avid Home Page'),
+      home: new MyHomePage(title: 'Avid'),
     );
   }
 }
@@ -61,6 +60,37 @@ class _MyHomePageState extends State<MyHomePage> {
      _controller.seekTo(new Duration(seconds: _controller.value.position.inSeconds + seconds));
   }
 
+  Widget _buildControllerBar({iconColor}) {
+    return new Row(
+      children: <Widget>[
+        new IconButton(
+          icon: new Icon(
+            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+            color: iconColor,
+          ),
+          onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
+        ),
+        new IconButton(
+          icon: new Icon(
+            Icons.replay_10,
+            color: iconColor,
+          ),
+          onPressed: () { _seek(-10);},
+        ),
+        new Expanded(
+          child: VideoProgressIndicator(_controller, allowScrubbing: true),
+        ),
+        new IconButton(
+          icon: new Icon(
+            Icons.forward_10,
+            color: iconColor,
+          ),
+          onPressed: () { _seek(10);},
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -70,36 +100,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: new Center(
         child: new Padding(
           padding: const EdgeInsets.all(10.0),
-          child: new Column(
+          child: new Stack(
+            alignment: Alignment.bottomLeft,
             children: <Widget>[
               new AspectRatio(
                 aspectRatio: 1280 / 720,
                 child: new VideoPlayer(_controller),
               ),
-              new Row(
-                children: <Widget>[
-                  new IconButton(
-                    icon: new Icon(
-                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                    ),
-                    onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
-                  ),
-                  new IconButton(
-                    icon: new Icon(
-                      Icons.replay_10
-                    ),
-                    onPressed: () { _seek(-10);},
-                  ),
-                  new Expanded(
-                    child: VideoProgressIndicator(_controller, allowScrubbing: true),
-                  ),
-                  new IconButton(
-                    icon: new Icon(
-                      Icons.forward_10
-                    ),
-                    onPressed: () { _seek(10);},
-                  ),
-                ],
+              new Container(
+                decoration: new BoxDecoration(
+                  color: Colors.black45,
+                ),
+                child: _buildControllerBar(iconColor: Colors.white),
               ),
             ],
           ),
