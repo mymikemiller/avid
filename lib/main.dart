@@ -8,6 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Avid',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
@@ -97,36 +98,44 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildPlayer() {
+    return new AspectRatio(
+      aspectRatio: 1280 / 720,
+      child: new Stack(
+        alignment: Alignment.bottomLeft,
+        children: <Widget>[
+            new GestureDetector(
+              onTap: () { setState(() { _isShowingControllerBar = !_isShowingControllerBar; } ); },
+              child: new Stack(
+                children: <Widget>[
+                  new Container(color: Colors.black), // So we can see where the player will be once it loads
+                  new VideoPlayer(_controller)
+                ]
+              ),
+            ),
+          _isShowingControllerBar 
+            ? _buildControllerBar(iconColor: Colors.white) 
+            : Row(),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    Orientation orientation = MediaQuery
+      .of(context)
+      .orientation;
+
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
+      backgroundColor: orientation == Orientation.landscape ? Colors.black : Colors.white,
+      appBar: orientation == Orientation.landscape 
+        ? null
+        : new AppBar(
+          title: new Text(widget.title),
+        ),
       body: new Center(
-        child: new Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: new Stack(
-            alignment: Alignment.bottomLeft,
-            children: <Widget>[
-              new AspectRatio(
-                aspectRatio: 1280 / 720,
-                child: new GestureDetector(
-                  onTap: () { setState(() { _isShowingControllerBar = !_isShowingControllerBar; } ); },
-                  child: VideoPlayer(_controller),
-                )
-              ),
-              _isShowingControllerBar ? _buildControllerBar(iconColor: Colors.white) : Row(),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed:
-            _controller.value.isPlaying ? _controller.pause : _controller.play,
-        child: new Icon(
-          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-        ),
+        child: _buildPlayer(),
       ),
     );
   }
