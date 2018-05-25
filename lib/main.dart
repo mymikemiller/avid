@@ -57,6 +57,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ..initialize();
   }
 
+  void _seek(seconds) {
+     _controller.seekTo(new Duration(seconds: _controller.value.position.inSeconds + seconds));
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -72,7 +76,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 aspectRatio: 1280 / 720,
                 child: new VideoPlayer(_controller),
               ),
-              new VideoProgressIndicator(_controller, allowScrubbing: true),
+              new Row(
+                children: <Widget>[
+                  new IconButton(
+                    icon: new Icon(
+                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                    ),
+                    onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
+                  ),
+                  new IconButton(
+                    icon: new Icon(
+                      Icons.replay_10
+                    ),
+                    onPressed: () { _seek(-10);},
+                  ),
+                  new Expanded(
+                    child: VideoProgressIndicator(_controller, allowScrubbing: true),
+                  ),
+                  new IconButton(
+                    icon: new Icon(
+                      Icons.forward_10
+                    ),
+                    onPressed: () { _seek(10);},
+                  ),
+                ],
+              ),
             ],
           ),
         ),
