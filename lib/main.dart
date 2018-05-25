@@ -66,9 +66,14 @@ class _MyHomePageState extends State<MyHomePage> {
       body: new Center(
         child: new Padding(
           padding: const EdgeInsets.all(10.0),
-          child: new AspectRatio(
-            aspectRatio: 1280 / 720,
-            child: new VideoPlayer(_controller),
+          child: new Column(
+            children: <Widget>[
+              new AspectRatio(
+                aspectRatio: 1280 / 720,
+                child: new VideoPlayer(_controller),
+              ),
+              new VideoProgressIndicator(_controller, allowScrubbing: true),
+            ],
           ),
         ),
       ),
