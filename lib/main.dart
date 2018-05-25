@@ -38,6 +38,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   VideoPlayerController _controller;
   bool _isPlaying = false;
+  bool _isShowingControllerBar = false;
 
   @override
   void initState() {
@@ -61,33 +62,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildControllerBar({iconColor}) {
-    return new Row(
-      children: <Widget>[
-        new IconButton(
-          icon: new Icon(
-            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-            color: iconColor,
+    return new Container(
+      decoration: new BoxDecoration(
+        color: Colors.black45,
+      ),
+      child: new Row(
+        children: <Widget>[
+          new IconButton(
+            icon: new Icon(
+              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+              color: iconColor,
+            ),
+            onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
           ),
-          onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
-        ),
-        new IconButton(
-          icon: new Icon(
-            Icons.replay_10,
-            color: iconColor,
+          new IconButton(
+            icon: new Icon(
+              Icons.replay_10,
+              color: iconColor,
+            ),
+            onPressed: () { _seek(-10);},
           ),
-          onPressed: () { _seek(-10);},
-        ),
-        new Expanded(
-          child: VideoProgressIndicator(_controller, allowScrubbing: true),
-        ),
-        new IconButton(
-          icon: new Icon(
-            Icons.forward_10,
-            color: iconColor,
+          new Expanded(
+            child: VideoProgressIndicator(_controller, allowScrubbing: true),
           ),
-          onPressed: () { _seek(10);},
-        ),
-      ],
+          new IconButton(
+            icon: new Icon(
+              Icons.forward_10,
+              color: iconColor,
+            ),
+            onPressed: () { _seek(10);},
+          ),
+        ],
+      )
     );
   }
 
@@ -105,14 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               new AspectRatio(
                 aspectRatio: 1280 / 720,
-                child: new VideoPlayer(_controller),
+                child: new GestureDetector(
+                  onTap: () { setState(() { _isShowingControllerBar = !_isShowingControllerBar; } ); },
+                  child: VideoPlayer(_controller),
+                )
               ),
-              new Container(
-                decoration: new BoxDecoration(
-                  color: Colors.black45,
-                ),
-                child: _buildControllerBar(iconColor: Colors.white),
-              ),
+              _isShowingControllerBar ? _buildControllerBar(iconColor: Colors.white) : Row(),
             ],
           ),
         ),
