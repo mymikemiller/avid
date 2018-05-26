@@ -7,16 +7,18 @@ import 'podcast.dart';
 
 Future<Podcast> _fetchPodcast(feedUrl) async {
   final response = await http.get(feedUrl);
-  print(response.body);
   Feed feed = parse(response.body);
   
   return new Podcast.fromFeed(feed); 
 }
 
+typedef void PodcastCallback(Podcast podcast);
+
 class PodcastTile extends StatefulWidget {
   final String feedUrl;
+  final PodcastCallback onTap;
 
-  PodcastTile(this.feedUrl);
+  PodcastTile({this.feedUrl, this.onTap});
 
   @override
   _PodcastTileState createState() => new _PodcastTileState();
@@ -29,11 +31,14 @@ class _PodcastTileState extends State<PodcastTile> {
       future: _fetchPodcast(widget.feedUrl),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return new Column(
-            children: <Widget>[
-              new Text(snapshot.data.title),
-              new Image.network(snapshot.data.imageUrl)
-            ]
+          return new GestureDetector(
+            child: new Column(
+              children: <Widget>[
+                new Text(snapshot.data.title),
+                new Image.network(snapshot.data.imageUrl)
+              ]
+            ),
+            onTap: () { widget.onTap(snapshot.data); },
           );
         } else if (snapshot.hasError) {
           return new Text("${snapshot.error}");

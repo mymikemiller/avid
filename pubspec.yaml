@@ -12,6 +12,11 @@ dependencies:
   # For video playing
   video_player:
 
+  # For downloading and parsing rss feeds
+  http:
+  feedparser:
+  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
