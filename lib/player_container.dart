@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-class PlayerContainer extends StatefulWidget{
-  PlayerContainer({Key key}) : super(key: key);
+class PlayerContainer extends StatefulWidget {
+  final String mediaUrl;
+
+  PlayerContainer({Key key, this.mediaUrl}) : super(key: key) {
+    print("Created PlayerContainer: $mediaUrl");
+  }
 
   @override
   _PlayerContainerState createState() => new _PlayerContainerState();
@@ -18,15 +22,17 @@ class _PlayerContainerState extends State<PlayerContainer> {
   void initState() {
     super.initState();
 
+    print("PlayerContainer initializing state");
+
     listener = () {
       final bool isPlaying = _controller.value.isPlaying;
-        if (isPlaying != _isPlaying) {
-          setState(() {
-            _isPlaying = isPlaying;
-          });
-        }
+      if (isPlaying != _isPlaying) {
+        setState(() {
+          _isPlaying = isPlaying;
+        });
+      }
     };
-    initController('http://podsync.net/download/ye702k1wl/75d9_WftjK0.mp4'); // OldGrumps from https://podsync.net/ye702k1wl
+    initController(widget.mediaUrl);
   }
 
   void _seek(seconds) {
@@ -36,17 +42,19 @@ class _PlayerContainerState extends State<PlayerContainer> {
   void initController(videoUrl) {
     print("initController: $videoUrl");
 
-    if (_controller != null) {
-      _controller.setVolume(0.0);
-      _controller.removeListener(listener);
-    }
-
     _controller = new VideoPlayerController.network(
       videoUrl,
     )
       ..addListener(listener)
       ..setVolume(1.0)
       ..initialize();
+  }
+
+  @override
+  void dispose() {
+    print("Disposing PlayerContainer");
+    _controller.dispose();
+    super.dispose();
   }
 
   Widget _buildControllerBar({iconColor}) {
