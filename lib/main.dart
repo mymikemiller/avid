@@ -41,11 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
   }
 
+
+
   void playLatest(Podcast podcast) {
     print("playing ${podcast.latestEpisode.enclosure.url}");
     setState(() {
       _playingMediaUrl = podcast.latestEpisode.enclosure.url;
       _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
+      _playerContainer.play();
     });
   }
 

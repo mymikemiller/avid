@@ -34,7 +34,6 @@ class _PodcastTileState extends State<PodcastTile> {
           return new GestureDetector(
             child: new Column(
               children: <Widget>[
-                // new Text(snapshot.data.title),
                 new Image.network(snapshot.data.imageUrl)
               ]
             ),

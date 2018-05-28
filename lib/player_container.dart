@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class PlayerContainer extends StatefulWidget {
-  final String mediaUrl;
+  VideoPlayerController _controller;
 
-  PlayerContainer({Key key, this.mediaUrl}) : super(key: key) {
-    print("Created PlayerContainer: $mediaUrl");
+  PlayerContainer({Key key, String mediaUrl}) : super(key: key) {
+    print("Creating PlayerContainer: $mediaUrl");
+
+    _controller = new VideoPlayerController.network(
+      mediaUrl,
+    )
+      ..initialize();
+  }
+
+  void play() {
+    _controller.play();
   }
 
   @override
@@ -13,10 +22,8 @@ class PlayerContainer extends StatefulWidget {
 }
 
 class _PlayerContainerState extends State<PlayerContainer> {
-  VideoPlayerController _controller;
   bool _isPlaying = false;
   bool _isShowingControllerBar = false;
-  VoidCallback listener;
 
   @override
   void initState() {
@@ -24,36 +31,24 @@ class _PlayerContainerState extends State<PlayerContainer> {
 
     print("PlayerContainer initializing state");
 
-    listener = () {
-      final bool isPlaying = _controller.value.isPlaying;
+    widget._controller.addListener(() {
+      final bool isPlaying = widget._controller.value.isPlaying;
       if (isPlaying != _isPlaying) {
         setState(() {
           _isPlaying = isPlaying;
         });
       }
-    };
-    initController(widget.mediaUrl);
+    });
   }
 
   void _seek(seconds) {
-     _controller.seekTo(new Duration(seconds: _controller.value.position.inSeconds + seconds));
-  }
-
-  void initController(videoUrl) {
-    print("initController: $videoUrl");
-
-    _controller = new VideoPlayerController.network(
-      videoUrl,
-    )
-      ..addListener(listener)
-      ..setVolume(1.0)
-      ..initialize();
+     widget._controller.seekTo(new Duration(seconds: widget._controller.value.position.inSeconds + seconds));
   }
 
   @override
   void dispose() {
     print("Disposing PlayerContainer");
-    _controller.dispose();
+    widget._controller.dispose();
     super.dispose();
   }
 
@@ -66,10 +61,10 @@ class _PlayerContainerState extends State<PlayerContainer> {
         children: <Widget>[
           new IconButton(
             icon: new Icon(
-              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+              widget._controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
               color: iconColor,
             ),
-            onPressed: _controller.value.isPlaying ? _controller.pause : _controller.play,
+            onPressed: widget._controller.value.isPlaying ? widget._controller.pause : widget._controller.play,
           ),
           new IconButton(
             icon: new Icon(
@@ -79,7 +74,7 @@ class _PlayerContainerState extends State<PlayerContainer> {
             onPressed: () { _seek(-10);},
           ),
           new Expanded(
-            child: VideoProgressIndicator(_controller, allowScrubbing: true),
+            child: VideoProgressIndicator(widget._controller, allowScrubbing: true),
           ),
           new IconButton(
             icon: new Icon(
@@ -105,7 +100,7 @@ class _PlayerContainerState extends State<PlayerContainer> {
               child: new Stack(
                 children: <Widget>[
                   new Container(color: Colors.black), // So we can see where the player will be once it loads
-                  new VideoPlayer(_controller),
+                  new VideoPlayer(widget._controller),
                 ]
               ),
             ),
