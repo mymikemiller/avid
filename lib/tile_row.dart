@@ -9,7 +9,6 @@ class TileRow extends StatefulWidget {
   final List<Podcast> podcasts;
   final PodcastCallback onTap;
 
-
   TileRow({this.title, this.podcasts, this.onTap});
 
   @override
@@ -23,12 +22,15 @@ class TileRowState extends State<TileRow> {
 
   List<Widget> _buildPodcastTiles() {
     return widget.podcasts.map((podcast) {
-      return new Container(
-        width: 100.0,
-        height: 100.0,
-        child: new PodcastTile(
-          podcast: podcast,
-          onTap: (podcast) { widget.onTap(podcast); }
+      return new Padding(
+        padding: EdgeInsets.all(5.0),
+        child: new Container(
+          width: 100.0,
+          height: 100.0,
+          child: new PodcastTile(
+            podcast: podcast,
+            onTap: (podcast) { widget.onTap(podcast); }
+          ),
         ),
       );
     }).toList();
@@ -39,10 +41,16 @@ class TileRowState extends State<TileRow> {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title, style: TextStyle(color: Colors.white),),
+        new Padding(
+          padding: new EdgeInsets.only(left: 5.0),
+          child: Text(
+            widget.title, 
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          )
+        ),
         new Container(
-          margin: new EdgeInsets.only(bottom: 20.0),
-          height: 160.0,
+          margin: new EdgeInsets.only(bottom: 10.0),
+          height: 110.0,
           child: new ListView(
             scrollDirection: Axis.horizontal,
             children: _buildPodcastTiles()

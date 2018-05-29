@@ -15,6 +15,7 @@ dependencies:
   # For downloading and parsing rss feeds
   http:
   feedparser:
+  xml:
   
 
 dev_dependencies:
