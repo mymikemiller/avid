@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'podcast.dart';
 import 'podcast_tile.dart';
+import 'podcast.dart';
 
 class TileRow extends StatefulWidget {
 
   final String title;
-  final List<String> feedUrls;
+  final List<Podcast> podcasts;
   final PodcastCallback onTap;
 
 
-  TileRow({this.title, this.feedUrls, this.onTap});
+  TileRow({this.title, this.podcasts, this.onTap});
 
   @override
   TileRowState createState() {
@@ -22,12 +22,12 @@ class TileRowState extends State<TileRow> {
   
 
   List<Widget> _buildPodcastTiles() {
-    return widget.feedUrls.map((feedUrl) {
+    return widget.podcasts.map((podcast) {
       return new Container(
         width: 100.0,
         height: 100.0,
         child: new PodcastTile(
-          feedUrl: feedUrl,
+          podcast: podcast,
           onTap: (podcast) { widget.onTap(podcast); }
         ),
       );

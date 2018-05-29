@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
-import 'podcast_tile.dart';
+import 'package:feedparser/feedparser.dart';
+import 'dart:async';
 import 'player_container.dart';
 import 'podcast.dart';
 import 'tile_row.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(new MyApp());
+
+
+List<String> feedUrls = [
+  "http://feeds.feedburner.com/daily_tech_news_show",
+  //"https://podsync.net/ye702k1wl", GameGrumpsOld
+  "http://feeds.twit.tv/tnss_video_small.xml",
+  //"https://pa.tedcdn.com/feeds/talks.rss", // Causes player to slow down and stop responding
+  //"http://feeds.feedburner.com/tedtalksHD", // Same, slows player
+  //"http://rss.cnn.com/services/podcasting/cnn10/rss", // Image doesn't work (only specified in itunes:image tag)
+  //"feeds.ign.com/ignfeeds/podcasts/video/gamescoop", // No host specified in URI (?)
+  "http://feeds.feedburner.com/KathyMaistersStartCookingVideoCast?format=xml",
+  "http://feeds.twit.tv/aaa_video_small.xml",
+];
 
 class MyApp extends StatelessWidget {
   @override
@@ -33,17 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _playingMediaUrl;
   PlayerContainer _playerContainer;
 
-  final feedUrls = [
-    "http://feeds.feedburner.com/daily_tech_news_show",
-    //"https://podsync.net/ye702k1wl", GameGrumpsOld
-    "http://feeds.twit.tv/tnss_video_small.xml",
-    //"https://pa.tedcdn.com/feeds/talks.rss", // Causes player to slow down and stop responding
-    //"http://feeds.feedburner.com/tedtalksHD", // Same, slows player
-    //"http://rss.cnn.com/services/podcasting/cnn10/rss", // Image doesn't work (only specified in itunes:image tag)
-    //"feeds.ign.com/ignfeeds/podcasts/video/gamescoop", // No host specified in URI (?)
-    "http://feeds.feedburner.com/KathyMaistersStartCookingVideoCast?format=xml",
-    "http://feeds.twit.tv/aaa_video_small.xml",
-  ];
+  List<Podcast> _podcasts;
 
   @override
   void initState() {
@@ -51,6 +56,22 @@ class _MyHomePageState extends State<MyHomePage> {
     print("init main");
     _playingMediaUrl = 'http://podsync.net/download/ye702k1wl/75d9_WftjK0.mp4';
     _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
+    _podcasts = [];
+
+    // Load all the podcasts into _podcasts, updating state each time one is fetched
+    for(var feedUrl in feedUrls) {
+      _fetchPodcast(feedUrl).then((podcast) {
+        setState(() {
+          _podcasts.add(podcast);
+        });
+      });
+    }
+  }
+
+  Future<Podcast> _fetchPodcast(feedUrl) async {
+    final response = await http.get(feedUrl);
+    Feed feed = parse(response.body);
+    return new Podcast.fromFeed(feedUrl, feed);
   }
 
   void playLatest(Podcast podcast) {
@@ -60,6 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
       _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
       _playerContainer.play();
     });
+  }
+
+  List<Widget> _buildTileRows() {
+    if (_podcasts.isEmpty) return [];
+
+    return [new TileRow(
+      title: "Tech", 
+      podcasts: _podcasts,
+      onTap: (podcast) {
+        playLatest(podcast);
+      }
+    )];
   }
 
   @override
@@ -81,12 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             _playerContainer,
             // new Text(_playingMediaUrl),
-            new TileRow(
-              title: "Tech", 
-              feedUrls: feedUrls,
-              onTap: (podcast) {
-                playLatest(podcast);
-              }
+            new Column(
+              children: _buildTileRows(),
             )
           ]
         )
