@@ -9,7 +9,7 @@ Future<Podcast> _fetchPodcast(feedUrl) async {
   final response = await http.get(feedUrl);
   Feed feed = parse(response.body);
   
-  return new Podcast.fromFeed(feed); 
+  return new Podcast.fromFeed(feedUrl, feed);
 }
 
 typedef void PodcastCallback(Podcast podcast);
