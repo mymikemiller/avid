@@ -1,8 +1,3 @@
 # avid
 
-A new Flutter project.
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+A video podcast player written in Flutter for Android and iOS.
