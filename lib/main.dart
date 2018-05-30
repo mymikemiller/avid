@@ -20,6 +20,7 @@ List<String> feedUrls = [
   "http://feeds.twit.tv/tnw_video_small.xml",
   "http://feeds.feedburner.com/KathyMaistersStartCookingVideoCast?format=xml",
   "http://feeds.twit.tv/aaa_video_small.xml",
+  "https://animecons.tv/extras-hd.xml",
 ];
 
 class MyApp extends StatelessWidget {
@@ -46,8 +47,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _playingMediaUrl;
-  PlayerContainer _playerContainer;
+  GlobalKey<PlayerContainerState> _playerContainerKey = GlobalKey();
 
   List<Podcast> _podcasts;
 
@@ -55,8 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     print("init main");
-    _playingMediaUrl = 'http://podsync.net/download/ye702k1wl/75d9_WftjK0.mp4';
-    _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
     _podcasts = [];
 
     // Load all the podcasts into _podcasts, updating state each time one is fetched
@@ -67,6 +65,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
     }
+
+    // This is called the frame after everything is first built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playerContainerKey.currentState.load('http://podsync.net/download/ye702k1wl/75d9_WftjK0.mp4');
+    });
   }
 
   Future<Podcast> _fetchPodcast(feedUrl) async {
@@ -77,10 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void playLatest(Podcast podcast) {
     print("playing ${podcast.latestEpisode.enclosure.url}");
     setState(() {
-      _playingMediaUrl = podcast.latestEpisode.enclosure.url;
-      // Key off the _playingMediaUrl so we don't create a new container if we're continuing to play the same media.
-      _playerContainer = new PlayerContainer(key: Key(_playingMediaUrl), mediaUrl: _playingMediaUrl);
-      _playerContainer.play();
+      _playerContainerKey.currentState.load(podcast.latestEpisode.enclosure.url, true);
     });
   }
 
@@ -131,9 +131,11 @@ class _MyHomePageState extends State<MyHomePage> {
           title: new Text(widget.title),
         ),
       body: new Center(
-        child: Column(
+        child: orientation == Orientation.landscape
+          ? PlayerContainer(key: _playerContainerKey)
+          : new Column(
           children: <Widget>[
-            _playerContainer,
+            PlayerContainer(key: _playerContainerKey),
             new Expanded(
               child: new ListView(
                 shrinkWrap: true,
